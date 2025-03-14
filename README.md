@@ -1,5 +1,7 @@
 # Septa Delays
 
+Project Board link: https://septaguys.atlassian.net/jira/core/projects/SEP/list?cloudId=99a5f171-4543-47e0-a223-3865a6db2eb9&source=projectBoard&atlOrigin=eyJpIjoiZWY3YmMzZjcyZGMwNDMzNTkzYjAwY2ZhYjFlZjc1YWEiLCJwIjoiaiJ9
+
 This document proposes a web-based application for tracking SEPTA Regional Rail delays and real-time train locations. The application will leverage the SEPTA API to process and display real-time data on train routes, schedules, and delay statuses. Users will be able to access this data via a modern, intuitive interface that includes an interactive map.
 
 Unlike general transit tracking apps, this application is exclusively designed for SEPTA’s Regional Rail system, incorporating real-time tracking, delay notifications, and predictive delay insights (if feasible within the timeline). This project aims to provide commuters, tourists, and daily transit riders with improved trip planning, reduced travel uncertainty, and a seamless experience when navigating SEPTA’s rail network.
