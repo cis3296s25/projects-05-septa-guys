@@ -51,3 +51,83 @@ This project builds upon existing open-source SEPTA tracking applications, inclu
 IsSeptaFcked – A text-based program for tracking SEPTA train statuses.
 septaTrains – A basic SEPTA regional rail delay tracker.
 TrainTracker – Implements train tracking logic and real-time data integration.
+
+
+
+
+
+<======== To Start =========>
+
+* You'll need the Node.js dependencies. run :
+
+    npm install 
+
+* You'll also need to create .env file to establish local server configuration.
+  After this, you can launch it on that specified localhost port and make the following requests:
+
+<======== Example API Requests =========>
+
+/*
+Root endpoint
+
+    http://localhost:3000/
+
+Returns information about all available endpoints.
+*/
+
+/*
+Health check
+
+    http://localhost:3000/health
+
+Returns the health status of the server.
+*/
+
+/*
+All train locations
+
+    http://localhost:3000/api/trains/locations
+
+Returns real-time locations of all SEPTA Regional Rail 
+trains.
+*/ 
+
+/*
+Train delays
+
+    http://localhost:3000/api/trains/delays
+
+Returns information about delayed trains with status categorization.
+*/
+
+/*
+Next to arrive
+
+    http://localhost:3000/api/trains/next-to-arrive/:from/:to/:count?
+
+Returns the next trains arriving between two stations.
+
+ * Replace :from with the origin station name (ex: "Suburban")
+ * Replace :to with the destination station name (ex: "Airport Terminal E F")
+ * :count is optional (defaults to 5)
+ ==> Example: http://localhost:3000/api/trains/next-to-arrive/Suburban/Ardmore/3
+*/
+
+Train schedule
+/*
+    http://localhost:3000/api/trains/schedule/:trainNumber/:day?
+
+Returns the schedule for a specific train.
+
+ * Replace :trainNumber with the train number (ex: "456")
+ * :day is optional (defaults to current day)
+ ==> Example: http://localhost:3000/api/trains/schedule/456
+*/
+
+/*
+All Regional Rail lines
+
+    http://localhost:3000/api/lines
+
+Returns a list of all SEPTA Regional Rail lines.
+*/
