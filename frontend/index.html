@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEPTA Commute Planner</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        header {
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .logo {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .hero {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .hero h1 {
+            font-size: 3rem;
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #5f6368;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .features {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .feature-card {
+            background: white;
+            padding: 2rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            text-align: center;
+            transition: transform 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: #1a73e8;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            color: #202124;
+            margin-bottom: 1rem;
+        }
+
+        .feature-card p {
+            color: #5f6368;
+            line-height: 1.5;
+        }
+
+        .cta-button {
+            display: inline-block;
+            background-color: #1a73e8;
+            color: white;
+            padding: 1rem 2rem;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 1.1rem;
+            margin-top: 2rem;
+            transition: background-color 0.3s ease;
+        }
+
+        .cta-button:hover {
+            background-color: #1557b0;
+        }
+
+        footer {
+            background-color: #f8f9fa;
+            padding: 2rem 0;
+            text-align: center;
+            color: #5f6368;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2rem;
+            }
+            
+            .hero p {
+                font-size: 1rem;
+            }
+            
+            .container {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">SEPTA Commute Planner</div>
+        <div class="subtitle">Plan your Philadelphia commute with ease</div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Plan Your Commute</h1>
+            <p>Find the best routes, compare travel times, and discover the most efficient way to get around Philadelphia using SEPTA and other transportation options.</p>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <h3>Interactive Map</h3>
+                <p>Visualize your route with our interactive Google Maps integration, showing real-time traffic and transit information.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Time Estimates</h3>
+                <p>Get accurate travel time estimates for different modes of transportation including SEPTA, driving, walking, and cycling.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Multiple Options</h3>
+                <p>Compare different transportation modes to find the most convenient and cost-effective way to reach your destination.</p>
+            </div>
+        </section>
+
+        <div style="text-align: center;">
+            <a href="test.html" class="cta-button">Start Planning Your Route</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 SEPTA Commute Planner. All rights reserved.</p>
+    </footer>
+</body>
+</html> 

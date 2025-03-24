@@ -16,10 +16,40 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Commutes and Destinations Map</title>
+    <title>SEPTA Commute Planner - Map</title>
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
+      /* Add navigation styles */
+      .nav-bar {
+        background-color: #1a73e8;
+        color: white;
+        padding: 0.5rem 1rem;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+      .nav-logo {
+        font-size: 1.5rem;
+        font-weight: bold;
+        color: white;
+        text-decoration: none;
+      }
+
+      .nav-link {
+        color: white;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+      }
+
+      .nav-link:hover {
+        background-color: rgba(255, 255, 255, 0.1);
+      }
+
       html,
       body {
         height: 100%;
@@ -527,6 +557,12 @@
     </style>
   </head>
   <body>
+    <!-- Add navigation bar -->
+    <nav class="nav-bar">
+      <a href="index.html" class="nav-logo">SEPTA Commute Planner</a>
+      <a href="index.html" class="nav-link">Back to Home</a>
+    </nav>
+
     <!-- Defined commutes SVGs -->
     <svg class="hide">
       <defs>
