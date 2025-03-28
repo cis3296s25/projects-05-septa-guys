@@ -12,15 +12,20 @@ async function fetchDelayedTrains() {
     container.innerHTML = '<div class="loading">Loading current delays...</div>';
     
     try {
-        const response = await fetch('http://localhost:3000/api/trains/delays', {
-            signal: AbortSignal.timeout(3000)
+        console.log('Fetching train delays from API...');
+        
+        // Make sure the URL is correct (no typo with "1" at the end)
+        const response = await fetch('/api/trains/delays', {
+            signal: AbortSignal.timeout(5000) // Increased timeout
         });
         
         if (!response.ok) {
-            throw new Error('Failed to fetch data');
+            console.error('API response not OK:', response.status, response.statusText);
+            throw new Error(`Failed to fetch data: ${response.status} ${response.statusText}`);
         }
         
         const delayedTrains = await response.json();
+        console.log('Successfully fetched train data:', delayedTrains);
         
         const now = new Date();
         document.getElementById('last-updated').innerText = 

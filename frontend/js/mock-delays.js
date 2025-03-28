@@ -73,6 +73,7 @@ const MOCK_DELAYED_TRAINS = [
     }
 ];
 
+/*
 async function fetchDelayedTrains() {
     const container = document.getElementById('delayed-trains-container');
     container.innerHTML = '<div class="loading">Loading current delays...</div>';
@@ -103,3 +104,4 @@ async function fetchDelayedTrains() {
         displayDelayedTrains(MOCK_DELAYED_TRAINS);
     }
 }
+    */
