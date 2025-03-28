@@ -1,0 +1,254 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+header {
+    background-color: #1a73e8;
+    color: white;
+    padding: 1rem 0;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 0.5rem;
+}
+
+.subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+}
+
+.hero {
+    text-align: center;
+    margin: 3rem 0;
+}
+
+.hero h1 {
+    font-size: 3rem;
+    color: #1a73e8;
+    margin-bottom: 1rem;
+}
+
+.hero p {
+    font-size: 1.2rem;
+    color: #5f6368;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
+}
+
+.features {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 2rem;
+    margin: 3rem 0;
+}
+
+.feature-card {
+    background: white;
+    padding: 2rem;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.feature-card:hover {
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 2.5rem;
+    color: #1a73e8;
+    margin-bottom: 1rem;
+}
+
+.feature-card h3 {
+    color: #202124;
+    margin-bottom: 1rem;
+}
+
+.feature-card p {
+    color: #5f6368;
+    line-height: 1.5;
+}
+
+.cta-button {
+    display: inline-block;
+    background-color: #1a73e8;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 25px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    margin-top: 2rem;
+    transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+    background-color: #1557b0;
+}
+
+/* Delayed Trains Section Styles */
+.delayed-trains {
+    background-color: white;
+    border-radius: 10px;
+    padding: 2rem;
+    margin: 2rem 0;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.delayed-trains h2 {
+    color: #1a73e8;
+    margin-bottom: 1.5rem;
+    text-align: center;
+}
+
+.delayed-trains-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1rem;
+}
+
+.train-card {
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-left: 5px solid;
+}
+
+.train-card.slightly {
+    background-color: #e8f5e9;
+    border-left-color: #4caf50;
+}
+
+.train-card.moderately {
+    background-color: #fff8e1;
+    border-left-color: #ffc107;
+}
+
+.train-card.severely {
+    background-color: #ffebee;
+    border-left-color: #f44336;
+}
+
+.train-info {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.train-info h4 {
+    margin: 0;
+    font-size: 1.1rem;
+}
+
+.delay-time {
+    font-weight: bold;
+}
+
+.train-detail {
+    color: #5f6368;
+    font-size: 0.9rem;
+    margin-bottom: 0.25rem;
+}
+
+.loading {
+    text-align: center;
+    padding: 2rem;
+    color: #5f6368;
+}
+
+.error-message {
+    text-align: center;
+    padding: 2rem;
+    color: #f44336;
+}
+
+.no-delays {
+    text-align: center;
+    padding: 2rem;
+    color: #4caf50;
+    font-weight: bold;
+}
+
+.delay-count {
+    text-align: center;
+    font-size: 1rem;
+    color: #f44336;
+    font-weight: bold;
+    margin-bottom: 1rem;
+}
+
+.refresh-button {
+    display: block;
+    margin: 1rem auto;
+    background-color: #1a73e8;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.refresh-button:hover {
+    background-color: #1557b0;
+}
+
+.last-updated {
+    text-align: center;
+    font-size: 0.8rem;
+    color: #5f6368;
+    margin-top: 1rem;
+}
+
+footer {
+    background-color: #f8f9fa;
+    padding: 2rem 0;
+    text-align: center;
+    color: #5f6368;
+    margin-top: auto;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .hero h1 {
+        font-size: 2rem;
+    }
+    
+    .hero p {
+        font-size: 1rem;
+    }
+    
+    .container {
+        padding: 1rem;
+    }
+
+    .delayed-trains-list {
+        grid-template-columns: 1fr;
+    }
+}

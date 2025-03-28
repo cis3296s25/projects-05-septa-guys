@@ -4,7 +4,8 @@
   "description": "Project Board link: https://septaguys.atlassian.net/jira/core/projects/SEP/list?cloudId=99a5f171-4543-47e0-a223-3865a6db2eb9&source=projectBoard&atlOrigin=eyJpIjoiZWY3YmMzZjcyZGMwNDMzNTkzYjAwY2ZhYjFlZjc1YWEiLCJwIjoiaiJ9",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "http-server frontend -p 8080"
   },
   "repository": {
     "type": "git",
@@ -16,5 +17,8 @@
   "bugs": {
     "url": "https://github.com/cis3296s25/projects-05-septa-guys/issues"
   },
-  "homepage": "https://github.com/cis3296s25/projects-05-septa-guys#readme"
+  "homepage": "https://github.com/cis3296s25/projects-05-septa-guys#readme",
+  "devDependencies": {
+    "http-server": "^14.1.1"
+  }
 }

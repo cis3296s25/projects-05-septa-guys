@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEPTA Commute Planner</title>
+    <!-- Link to external CSS file -->
+    <link href="css/main.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+    <header>
+        <div class="logo">SEPTA Commute Planner</div>
+        <div class="subtitle">Plan your Philadelphia commute with ease</div>
+    </header>
+
+    <div class="container">
+        <section class="hero">
+            <h1>Plan Your Commute</h1>
+            <p>Find the best routes, compare travel times, and discover the most efficient way to get around Philadelphia using SEPTA and other transportation options.</p>
+        </section>
+
+        <!-- New Delayed Trains Section -->
+        <section class="delayed-trains">
+            <h2>Current SEPTA Significant Delays</h2>
+            <div id="delayed-trains-container">
+                <div class="loading">Loading current delays...</div>
+            </div>
+            <button class="refresh-button" onclick="fetchDelayedTrains()">Refresh Delays</button>
+            <div class="last-updated" id="last-updated"></div>
+        </section>
+
+        <section class="features">
+            <div class="feature-card">
+                <h3>Interactive Map</h3>
+                <p>Visualize your route with our interactive Google Maps integration, showing real-time traffic and transit information.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Time Estimates</h3>
+                <p>Get accurate travel time estimates for different modes of transportation including SEPTA, driving, walking, and cycling.</p>
+            </div>
+            <div class="feature-card">
+                <h3>Multiple Options</h3>
+                <p>Compare different transportation modes to find the most convenient and cost-effective way to reach your destination.</p>
+            </div>
+        </section>
+
+        <div style="text-align: center;">
+            <a href="test.html" class="cta-button">Start Planning Your Route</a>
+        </div>
+    </div>
+
+    <footer>
+        <p>© 2024 SEPTA Commute Planner. All rights reserved.</p>
+    </footer>
+
+    <!-- Load mock data script as fallback -->
+    <script src="js/mock-delays.js"></script>
+    <!-- Load main functionality -->
+    <script src="js/delayed-trains.js"></script>
+</body>
+</html>
