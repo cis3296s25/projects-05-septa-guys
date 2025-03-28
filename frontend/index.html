@@ -170,8 +170,21 @@
         </section>
 
         <div style="text-align: center;">
-            <a href="test.html" class="cta-button">Start Planning Your Route</a>
+            <a href="mainMap.html" class="cta-button" id = "routeBtn">Start Planning Your Route</a>
         </div>
+
+        <script>
+            // Select the button by its id
+            const routeButton = document.getElementById("routeBtn")
+
+            routeButton.addEventListener("click", function(event) {
+                event.preventDefault();
+
+                window.location.href = "mainMap.html";
+            });
+
+            
+        </script>
     </div>
 
     <footer>
