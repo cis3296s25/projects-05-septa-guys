@@ -1,4 +1,3 @@
-
 const express = require('express');
 const cors = require('cors');
 const axios = require('axios');
@@ -125,6 +124,55 @@ app.get('/api/trains/delays', async (req, res) => {
   } catch (error) {
     console.error('Error fetching train delays:', error);
     res.status(500).json({ error: 'Failed to fetch train delays' });
+  }
+});
+
+// Get stations for a specific rail line
+app.get('/api/lines/:lineCode/stations', async (req, res) => {
+  try {
+    const { lineCode } = req.params;
+    console.log(`Fetching stations for line: ${lineCode}`);
+    
+    // Hardcoded station data for testing
+    const stationData = {
+      'WTR': [
+        { lat: 39.9526, lng: -75.1652, station: '30th Street Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Suburban Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Market East Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Temple University Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'North Broad Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Wayne Junction Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Germantown Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Mount Airy Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Chestnut Hill West Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'West Trenton Station' }
+      ],
+      'AIR': [
+        { lat: 39.9526, lng: -75.1652, station: '30th Street Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Eastwick Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Terminal A Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Terminal B Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Terminal C Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Terminal D Station' },
+        { lat: 39.9526, lng: -75.1652, station: 'Terminal E Station' }
+      ]
+    };
+
+    const stations = stationData[lineCode];
+    
+    if (!stations) {
+      throw new Error(`No station data available for line: ${lineCode}`);
+    }
+    
+    console.log('Returning stations:', stations);
+    res.json(stations);
+  } catch (error) {
+    console.error('Error fetching rail line stations:', error.message);
+    res.status(500).json({ 
+      error: 'Failed to fetch rail line stations',
+      details: error.message,
+      lineCode: req.params.lineCode
+    });
   }
 });
 

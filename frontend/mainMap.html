@@ -20,7 +20,72 @@
     <meta charset="utf-8"/>
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <style>
-      
+   
+      /* Existing styles */
+     
+
+      /* Add SEPTA controls styles */
+      .septa-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: white;
+        padding: 10px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 1000;
+      }
+
+      .septa-controls select {
+        padding: 5px;
+        margin: 5px 0;
+        width: 200px;
+      }
+
+      .septa-controls button {
+        background: #1a73e8;
+        color: white;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+        margin: 5px 0;
+      }
+
+      .septa-controls button:hover {
+        background: #1557b0;
+      }
+
+      .septa-controls button.active {
+        background: #1557b0;
+      }
+
+      /* Add tooltip styles */
+      .train-tooltip {
+        position: absolute;
+        background: white;
+        padding: 8px 12px;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        font-size: 14px;
+        z-index: 1001;
+        pointer-events: none;
+        max-width: 200px;
+      }
+
+      .train-tooltip .status {
+        font-weight: bold;
+        margin-bottom: 4px;
+      }
+
+      .train-tooltip .status.on-time {
+        color: #34a853;
+      }
+
+      .train-tooltip .status.delayed {
+        color: #ea4335;
+      }
+    
     </style>
     <link href = "css/style.css" type = "text/css" rel = "stylesheet">
   </head>
@@ -30,6 +95,29 @@
       <a href="index.html" class="nav-logo">SEPTA Commute Planner</a>
       <a href="index.html" class="nav-link">Back to Home</a>
     </nav>
+
+    <!-- Add SEPTA controls -->
+    <div class="septa-controls">
+      <select id="railLineSelect">
+        <option value="">Select a Rail Line</option>
+        <option value="AIR">Airport Line</option>
+        <option value="CHE">Chestnut Hill East</option>
+        <option value="CHW">Chestnut Hill West</option>
+        <option value="FOX">Fox Chase</option>
+        <option value="LAN">Lansdale/Doylestown</option>
+        <option value="MED">Media/Elwyn</option>
+        <option value="NOR">Norristown</option>
+        <option value="PAO">Paoli/Thorndale</option>
+        <option value="TRE">Trenton</option>
+        <option value="WAR">Warminster</option>
+        <option value="WIL">Wilmington/Newark</option>
+        <option value="WTR">West Trenton</option>
+      </select>
+      <button id="toggleRailLine">Show Rail Line</button>
+    </div>
+
+    <!-- Add tooltip container -->
+    <div id="trainTooltip" class="train-tooltip" style="display: none;"></div>
 
     <!-- Defined commutes SVGs -->
     <svg class="hide">
@@ -1174,6 +1262,223 @@
         new Commutes(CONFIGURATION);
       }
     </script>
-    <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDp7fxcDMtt4sJh6DTuOEeNCKpeb2-qoxQ&callback=initMap&libraries=places,geometry&solution_channel=GMP_QB_commutes_v3_c" async defer></script>
+    
+    <!-- SEPTA JavaScript code -->
+    <script>
+      // SEPTA API configuration
+      const BACKEND_API_BASE = 'http://localhost:3000/api';
+      const RAIL_LINE_COLORS = {
+        'AIR': '#FF0000', // Red
+        'CHE': '#00FF00', // Green
+        'CHW': '#0000FF', // Blue
+        'FOX': '#FFA500', // Orange
+        'LAN': '#800080', // Purple
+        'MED': '#FFC0CB', // Pink
+        'NOR': '#A52A2A', // Brown
+        'PAO': '#008080', // Teal
+        'TRE': '#FFD700', // Gold
+        'WAR': '#4B0082', // Indigo
+        'WIL': '#20B2AA', // Light Sea Green
+        'WTR': '#FF4500'  // Orange Red
+      };
+
+      let railLinePolylines = {};
+      let activeRailLine = null;
+      let tooltip = null;
+      let commutesMap = null;
+
+      // Get map instance from Commutes class
+      function getMapInstance() {
+        if (!commutesMap) {
+          // Try to get the map from the Commutes instance
+          const mapView = document.querySelector('.map-view');
+          if (mapView && mapView._googleMap) {
+            commutesMap = mapView._googleMap;
+          } else {
+            // If not found, try to get it from the global Commutes instance
+            const commutesInstance = window.commutesInstance;
+            if (commutesInstance && commutesInstance.commutesMap) {
+              commutesMap = commutesInstance.commutesMap;
+            }
+          }
+        }
+        return commutesMap;
+      }
+
+      // SEPTA API functions
+      async function fetchRailLineStations(lineCode) {
+        try {
+          console.log(`Fetching stations for line: ${lineCode}`);
+          const response = await fetch(`${BACKEND_API_BASE}/lines/${lineCode}/stations`);
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Server error details:', errorData);
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          console.log('Received stations:', data);
+          return data;
+        } catch (error) {
+          console.error('Error fetching rail line stations:', error);
+          // Show error to user
+          const tooltip = document.getElementById('trainTooltip');
+          if (tooltip) {
+            tooltip.innerHTML = `<div class="error">Error loading rail line data. Please try again.</div>`;
+            tooltip.style.display = 'block';
+            tooltip.style.left = '50%';
+            tooltip.style.top = '50%';
+            setTimeout(() => {
+              tooltip.style.display = 'none';
+            }, 3000);
+          }
+          return null;
+        }
+      }
+
+      async function fetchTrainStatus(lineCode) {
+        try {
+          const response = await fetch(`${BACKEND_API_BASE}/trains/locations`);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          const data = await response.json();
+          return data.filter(train => train.line === lineCode);
+        } catch (error) {
+          console.error('Error fetching train status:', error);
+          return null;
+        }
+      }
+
+      function createTooltip() {
+        tooltip = document.getElementById('trainTooltip');
+        return tooltip;
+      }
+
+      function showTooltip(event, content) {
+        if (!tooltip) {
+          tooltip = createTooltip();
+        }
+        tooltip.innerHTML = content;
+        tooltip.style.display = 'block';
+        tooltip.style.left = event.pageX + 10 + 'px';
+        tooltip.style.top = event.pageY + 10 + 'px';
+      }
+
+      function hideTooltip() {
+        if (tooltip) {
+          tooltip.style.display = 'none';
+        }
+      }
+
+      function drawRailLine(lineCode, stations) {
+        if (!stations || stations.length < 2) {
+          console.error('Not enough stations to draw line:', stations);
+          return;
+        }
+
+        // Wait for map to be available
+        const checkMapAndDraw = () => {
+          const map = getMapInstance();
+          if (!map) {
+            console.log('Map not ready yet, retrying in 500ms...');
+            setTimeout(checkMapAndDraw, 500);
+            return;
+          }
+
+          console.log('Map found, drawing rail line...');
+
+          // Remove existing polyline if it exists
+          if (railLinePolylines[lineCode]) {
+            railLinePolylines[lineCode].setMap(null);
+          }
+
+          // Create path from stations
+          const path = stations.map(station => ({
+            lat: parseFloat(station.lat),
+            lng: parseFloat(station.lng)
+          }));
+
+          // Create polyline
+          const polyline = new google.maps.Polyline({
+            path: path,
+            strokeColor: RAIL_LINE_COLORS[lineCode],
+            strokeOpacity: 0.8,
+            strokeWeight: 4,
+            map: map
+          });
+
+          // Add hover listeners
+          polyline.addListener('mouseover', async (event) => {
+            const trains = await fetchTrainStatus(lineCode);
+            if (trains && trains.length > 0) {
+              const delayedTrains = trains.filter(train => train.late > 0);
+              const content = `
+                <div class="status ${delayedTrains.length > 0 ? 'delayed' : 'on-time'}">
+                  ${delayedTrains.length > 0 ? 'Delayed' : 'On Time'}
+                </div>
+                <div>Active Trains: ${trains.length}</div>
+                ${delayedTrains.length > 0 ? `<div>Delayed Trains: ${delayedTrains.length}</div>` : ''}
+              `;
+              showTooltip(event, content);
+            }
+          });
+
+          polyline.addListener('mouseout', hideTooltip);
+
+          railLinePolylines[lineCode] = polyline;
+        };
+
+        checkMapAndDraw();
+      }
+
+      function toggleRailLine(lineCode) {
+        if (!lineCode) {
+          console.error('No line code provided');
+          return;
+        }
+
+        if (activeRailLine === lineCode) {
+          // Hide the line
+          if (railLinePolylines[lineCode]) {
+            railLinePolylines[lineCode].setMap(null);
+          }
+          activeRailLine = null;
+          document.getElementById('toggleRailLine').classList.remove('active');
+        } else {
+          // Hide previous line if exists
+          if (activeRailLine && railLinePolylines[activeRailLine]) {
+            railLinePolylines[activeRailLine].setMap(null);
+          }
+          
+          // Show new line
+          const button = document.getElementById('toggleRailLine');
+          button.disabled = true;
+          button.textContent = 'Loading...';
+          
+          fetchRailLineStations(lineCode).then(stations => {
+            if (stations && stations.length > 0) {
+              drawRailLine(lineCode, stations);
+              activeRailLine = lineCode;
+              button.classList.add('active');
+            }
+          }).finally(() => {
+            button.disabled = false;
+            button.textContent = 'Show Rail Line';
+          });
+        }
+      }
+
+      // Add event listeners for SEPTA controls
+      document.getElementById('toggleRailLine').addEventListener('click', () => {
+        const lineCode = document.getElementById('railLineSelect').value;
+        if (lineCode) {
+          toggleRailLine(lineCode);
+        }
+      });
+    </script>
+
+    <script async defer
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyDp7fxcDMtt4sJh6DTuOEeNCKpeb2-qoxQ&callback=initMap&libraries=places,geometry&solution_channel=GMP_QB_commutes_v3_c">
+    </script>
   </body>
 </html>
