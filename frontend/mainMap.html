@@ -34,6 +34,12 @@
       <select id="rail-line-select">
         <option value="">Select a line...</option>
       </select>
+      <div class="distance-toggle">
+        <button id="distance-toggle" class="toggle-button">
+          <span class="unit">Imperial</span>
+          <span class="unit">Metric</span>
+        </button>
+      </div>
     </div>
 
     <!-- Defined commutes SVGs -->
@@ -412,6 +418,54 @@
         TRANSIT: "TRANSIT",
         BICYCLING: "BICYCLING",
         WALKING: "WALKING",
+      };
+
+      // Initialize global variables
+      const BACKEND_API_BASE = 'http://localhost:3000/api';
+      let railLinePolylines = {};
+      let tooltip = null;
+      let isMetric = false;
+
+      // Define initMap in the global scope
+      window.initMap = function() {
+        const CONFIGURATION = {
+          defaultTravelMode: "PUBLIC_TRANSIT",
+          distanceMeasurementType: isMetric ? "METRIC" : "IMPERIAL",
+          mapOptions: {
+            center: { lat: 39.9784134, lng: -75.1573499 },
+            fullscreenControl: true,
+            mapTypeControl: false,
+            streetViewControl: false,
+            zoom: 12,
+            zoomControl: true,
+            maxZoom: 20,
+            mapId: "",
+          },
+          mapsApiKey: "AIzaSyDp7fxcDMtt4sJh6DTuOEeNCKpeb2-qoxQ",
+        };
+
+        const commutes = new Commutes(CONFIGURATION);
+        window.commutesMap = commutes.commutesMap;
+        commutesMap = commutes.commutesMap;
+
+        // Initialize distance toggle
+        const toggleButton = document.getElementById('distance-toggle');
+        toggleButton.addEventListener('click', () => {
+          isMetric = !isMetric;
+          toggleButton.classList.toggle('metric');
+          // Update the map with new units
+          if (commutesMap) {
+            commutesMap.setOptions({
+              distanceMeasurementType: isMetric ? "METRIC" : "IMPERIAL"
+            });
+          }
+        });
+
+        setTimeout(() => {
+          if (commutesMap) {
+            initRailLineSelector();
+          }
+        }, 1000);
       };
 
       function initRailLineSelector() {

@@ -590,3 +590,61 @@ body {
   vertical-align: middle;
   border-radius: 50%;
 }
+
+.distance-toggle {
+  margin-left: 10px;
+  display: inline-block;
+}
+
+.toggle-button {
+  position: relative;
+  width: 80px;
+  height: 30px;
+  background-color: #f0f0f0;
+  border: 1px solid #ccc;
+  border-radius: 15px;
+  cursor: pointer;
+  overflow: hidden;
+  padding: 0;
+}
+
+.toggle-button .unit {
+  position: absolute;
+  width: 50%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  transition: all 0.3s ease;
+}
+
+.toggle-button .unit:first-child {
+  left: 0;
+  background-color: #4285f4;
+  color: white;
+}
+
+.toggle-button .unit:last-child {
+  right: 0;
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.toggle-button.metric .unit:first-child {
+  left: -50%;
+}
+
+.toggle-button.metric .unit:last-child {
+  right: -50%;
+}
+
+.toggle-button.metric .unit:first-child {
+  background-color: #f0f0f0;
+  color: #333;
+}
+
+.toggle-button.metric .unit:last-child {
+  background-color: #4285f4;
+  color: white;
+}
