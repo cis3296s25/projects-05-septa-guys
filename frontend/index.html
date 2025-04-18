@@ -76,6 +76,10 @@
                     zoom: 12
                 };
                 var map = new google.maps.Map(document.getElementById('map'), mapOptions);
+
+                // Add the transit layer to show the transportation routes
+                var transitLayer = new google.maps.TransitLayer();
+                transitLayer.setMap(map);
             }
         </script>
 
