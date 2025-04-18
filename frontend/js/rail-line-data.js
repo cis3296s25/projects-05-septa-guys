@@ -83,13 +83,13 @@ const RAIL_LINE_DATA = {
   NOR: {
     name: "Manayunk/Norristown Line",
     stations: [
-      { lat: 39.9526, lng: -75.1652, station: "30th Street Station" },
-      { lat: 39.9526, lng: -75.1652, station: "Suburban Station" },
-      { lat: 39.9526, lng: -75.1652, station: "Market East Station" },
-      { lat: 39.9813, lng: -75.1498, station: "Temple University Station" },
-      { lat: 40.0319, lng: -75.1508, station: "Wayne Junction Station" },
-      { lat: 40.0319, lng: -75.1508, station: "Manayunk Station" },
-      { lat: 40.0319, lng: -75.1508, station: "Norristown Station" },
+      { lat: 39.9566, lng: -75.1816, station: "30th Street Station" },
+      { lat: 39.9685, lng: -75.1965, station: "East Falls Station" },
+      { lat: 40.0274, lng: -75.2223, station: "Manayunk Station" },
+      { lat: 40.0331, lng: -75.2343, station: "Ivy Ridge Station" },
+      { lat: 40.0697, lng: -75.2871, station: "Spring Mill Station" },
+      { lat: 40.0831, lng: -75.3147, station: "Conshohocken Station" },
+      { lat: 40.1012, lng: -75.3494, station: "Norristown Transportation Center" }
     ],
   },
   PAO: {
