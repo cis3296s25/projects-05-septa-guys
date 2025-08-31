@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,6 +8,7 @@
     <!-- Link to external CSS file -->
     <link href="css/main.css" rel="stylesheet" type="text/css">
 </head>
+
 <body>
     <header>
         <div class="logo">SEPTA Commute Planner</div>
@@ -16,7 +18,8 @@
     <div class="container">
         <section class="hero">
             <h1>Plan Your Commute</h1>
-            <p>Find the best routes, compare travel times, and discover the most efficient way to get around Philadelphia using SEPTA and other transportation options.</p>
+            <p>Find the best routes, compare travel times, and discover the most efficient way to get around
+                Philadelphia using SEPTA and other transportation options.</p>
         </section>
 
 
@@ -31,48 +34,51 @@
         </section>
 
         <!-- Embeded Map into Webpage-->
-        <div class = "feature-card">
+        <div class="feature-card">
             <p> An interactive map to preview current lines at a glance</p>
-            <div id = "map" style = "width:100%; height:300px;"></div>
-         </div>
+            <div id="map" style="width:100%; height:300px;"></div>
+        </div>
 
         <section class="features">
             <div class="feature-card">
                 <h3>Interactive Map</h3>
-                <p>Visualize your route with our interactive Google Maps integration, showing real-time traffic and transit information.</p>
+                <p>Visualize your route with our interactive Google Maps integration, showing real-time traffic and
+                    transit information.</p>
             </div>
             <div class="feature-card">
                 <h3>Time Estimates</h3>
-                <p>Get accurate travel time estimates for different modes of transportation including SEPTA, driving, walking, and cycling.</p>
+                <p>Get accurate travel time estimates for different modes of transportation including SEPTA, driving,
+                    walking, and cycling.</p>
             </div>
             <div class="feature-card">
                 <h3>Multiple Options</h3>
-                <p>Compare different transportation modes to find the most convenient and cost-effective way to reach your destination.</p>
+                <p>Compare different transportation modes to find the most convenient and cost-effective way to reach
+                    your destination.</p>
             </div>
         </section>
 
         <div style="text-align: center;">
-            <a href="mainMap.html" class="cta-button" id = "routeBtn">Start Planning Your Route</a>
+            <a href="mainMap.html" class="cta-button" id="routeBtn">Start Planning Your Route</a>
         </div>
 
         <script>
             // Select the button by its id
             const routeButton = document.getElementById("routeBtn")
 
-            routeButton.addEventListener("click", function(event) {
+            routeButton.addEventListener("click", function (event) {
                 event.preventDefault();
 
                 window.location.href = "mainMap.html";
             });
 
-            
+
         </script>
 
         <!-- Script to initialize the map -->
         <script>
             function initMap() {
                 var mapOptions = {
-                    center: {lat : 39.9526, lng: -75.1652}, // Philadelphia coordiantes
+                    center: { lat: 39.9526, lng: -75.1652 }, // Philadelphia coordiantes
                     zoom: 12
                 };
                 var map = new google.maps.Map(document.getElementById('map'), mapOptions);
@@ -84,9 +90,9 @@
         </script>
 
         <script async defer
-            src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyDp7fxcDMtt4sJh6DTuOEeNCKpeb2-qoxQ&callback=initMap">
-        </script>
-        
+            src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD7QPfuv1b88tlWNoP503giDNzDjfVW-6A&callback=initMap">
+            </script>
+
     </div>
 
     <footer>
@@ -98,4 +104,5 @@
     <!-- Load main functionality -->
     <script src="js/delayed-trains.js"></script>
 </body>
+
 </html>
