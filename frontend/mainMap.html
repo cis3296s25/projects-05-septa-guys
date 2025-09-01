@@ -406,8 +406,12 @@
 
     function initRailLineSelector() {
       let lineMarkers = [];
-      let linePolyline = null;
+      let transitLayer = null; // Keep track of transit layer
+      let lineLegend = null; // Keep track of legend
       const railLineSelect = document.getElementById("rail-line-select");
+
+      // Create legend element
+      createLineLegend();
 
       // Fetch all rail lines and populate the dropdown
       fetch("/api/lines")
@@ -426,7 +430,7 @@
       railLineSelect.addEventListener("change", function () {
         const selectedLineId = this.value;
 
-        // Clear previous markers and polyline
+        // Clear previous display
         clearRailLineFromMap();
 
         if (selectedLineId) {
@@ -434,7 +438,7 @@
           fetch(`/api/lines/${selectedLineId}/stations`)
             .then((response) => response.json())
             .then((data) => {
-              displayRailLine(data.stations, data.route, selectedLineId);
+              displayEnhancedRailLine(data.stations, selectedLineId);
             })
             .catch((error) =>
               console.error("Error loading stations:", error)
@@ -442,69 +446,132 @@
         }
       });
 
+      function createLineLegend() {
+        // Create legend container if it doesn't exist
+        lineLegend = document.querySelector('.line-legend');
+        if (!lineLegend) {
+          lineLegend = document.createElement("div");
+          lineLegend.className = "line-legend";
+          document.querySelector(".commutes-map").appendChild(lineLegend);
+        }
+      }
+
       function clearRailLineFromMap() {
         // Clear station markers
         lineMarkers.forEach((marker) => marker.setMap(null));
         lineMarkers = [];
 
-        // Clear route polyline
-        if (linePolyline) {
-          linePolyline.setMap(null);
-          linePolyline = null;
+        // Clear transit layer
+        if (transitLayer) {
+          transitLayer.setMap(null);
+          transitLayer = null;
+        }
+
+        // Hide legend
+        if (lineLegend) {
+          lineLegend.style.display = 'none';
         }
       }
 
-      function displayRailLine(stations, route, lineId) {
-        // Get line color based on lineId
+      function displayEnhancedRailLine(stations, lineId) {
+        // Get line color and info
         const lineColor = getLineColor(lineId);
+        const lineName = getLineName(lineId);
 
-        // Create a polyline for the route
-        linePolyline = new google.maps.Polyline({
-          path: route,
-          geodesic: true,
-          strokeColor: lineColor,
-          strokeOpacity: 1.0,
-          strokeWeight: 5,
-          map: commutesMap,
-        });
+        // Show transit layer for accurate routes
+        transitLayer = new google.maps.TransitLayer();
+        transitLayer.setMap(commutesMap);
 
-        // Create markers for each station
-        stations.forEach((station) => {
+        // Update and show legend
+        updateLineLegend(lineName, lineColor, stations.length);
+
+        // Create enhanced station markers
+        stations.forEach((station, index) => {
           const marker = new google.maps.Marker({
             position: { lat: station.lat, lng: station.lng },
             map: commutesMap,
             title: station.name,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 7,
-              fillColor: "#FFFFFF",
-              fillOpacity: 1,
-              strokeColor: lineColor,
-              strokeWeight: 3,
-            },
-            className: "station-marker",
+            icon: createStationIcon(lineColor, index === 0 || index === stations.length - 1),
+            zIndex: 100 // Ensure markers appear above transit lines
           });
 
-          // Add info window for station
+          // Create info window for each station
           const infoWindow = new google.maps.InfoWindow({
-            content: `<div class="station-info-window"><h3>${station.name}</h3><p>SEPTA Regional Rail Station</p></div>`,
+            content: createStationInfoContent(station, lineName, lineId)
           });
 
+          // Add click listener
           marker.addListener("click", () => {
+            // Close any open info windows
+            lineMarkers.forEach(m => {
+              if (m.infoWindow) m.infoWindow.close();
+            });
             infoWindow.open(commutesMap, marker);
           });
 
+          // Store info window reference
+          marker.infoWindow = infoWindow;
           lineMarkers.push(marker);
         });
 
-        // Fit the map to show the entire line
+        // Fit map to show all stations with some padding
         const bounds = new google.maps.LatLngBounds();
-        route.forEach((coord) => bounds.extend(coord));
-        commutesMap.fitBounds(bounds);
+        stations.forEach((station) => {
+          bounds.extend({ lat: station.lat, lng: station.lng });
+        });
+
+        // Add some padding around the bounds
+        commutesMap.fitBounds(bounds, { padding: 50 });
+      }
+
+      function createStationIcon(lineColor, isTerminal) {
+        return {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: isTerminal ? 10 : 8, // Make terminal stations slightly larger
+          fillColor: "#FFFFFF",
+          fillOpacity: 1,
+          strokeColor: lineColor,
+          strokeWeight: isTerminal ? 4 : 3,
+          strokeOpacity: 1
+        };
+      }
+
+      function createStationInfoContent(station, lineName, lineId) {
+        return `
+      <div style="padding: 8px; min-width: 200px;">
+        <h3 style="margin: 0 0 8px 0; color: ${getLineColor(lineId)};">
+          ${station.name}
+        </h3>
+        <p style="margin: 4px 0; color: #666;">
+          <strong>${lineName}</strong>
+        </p>
+        <p style="margin: 4px 0; color: #666; font-size: 12px;">
+          SEPTA Regional Rail Station
+        </p>
+      </div>
+    `;
+      }
+
+      function updateLineLegend(lineName, lineColor, stationCount) {
+        lineLegend.innerHTML = `
+      <div style="padding: 12px; background: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+        <div style="display: flex; align-items: center; margin-bottom: 8px;">
+          <div style="width: 20px; height: 4px; background-color: ${lineColor}; margin-right: 8px; border-radius: 2px;"></div>
+          <strong style="color: #333;">${lineName}</strong>
+        </div>
+        <div style="font-size: 12px; color: #666;">
+          ${stationCount} stations • Transit routes shown
+        </div>
+        <div style="font-size: 11px; color: #999; margin-top: 4px;">
+          Powered by Google Transit
+        </div>
+      </div>
+    `;
+        lineLegend.style.display = 'block';
       }
 
       function getLineColor(lineId) {
-        // Standard SEPTA line colors
+        // Your existing line colors
         const lineColors = {
           AIR: "#4F94CD", // Airport Line (Blue)
           CHE: "#CD5C5C", // Chestnut Hill East (Red)
@@ -520,8 +587,26 @@
           WIL: "#9932CC", // Wilmington/Newark Line (Purple)
           WTR: "#FFD700", // West Trenton Line (Yellow)
         };
+        return lineColors[lineId] || "#888888";
+      }
 
-        return lineColors[lineId] || "#888888"; // Default gray if line not found
+      function getLineName(lineId) {
+        const lineNames = {
+          AIR: "Airport Line",
+          CHE: "Chestnut Hill East Line",
+          CHW: "Chestnut Hill West Line",
+          CYN: "Cynwyd Line",
+          FOX: "Fox Chase Line",
+          LAN: "Lansdale/Doylestown Line",
+          MED: "Media/Elwyn Line",
+          NOR: "Manayunk/Norristown Line",
+          PAO: "Paoli/Thorndale Line",
+          TRE: "Trenton Line",
+          WAR: "Warminster Line",
+          WIL: "Wilmington/Newark Line",
+          WTR: "West Trenton Line",
+        };
+        return lineNames[lineId] || "Unknown Line";
       }
     }
 

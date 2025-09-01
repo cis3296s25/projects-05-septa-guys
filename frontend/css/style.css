@@ -245,11 +245,11 @@ body {
   width: 100%;
 }
 
-.commutes-destinations .active + .destination-controls .directions-button {
+.commutes-destinations .active+.destination-controls .directions-button {
   fill: #4285f4;
 }
 
-.commutes-destinations .active + .destination-controls .edit-button {
+.commutes-destinations .active+.destination-controls .edit-button {
   opacity: 1;
 }
 
@@ -420,6 +420,7 @@ body {
   flex-direction: column;
   gap: 16px;
 }
+
 .commutes-modal .heading {
   font: 24px/32px Arial, sans-serif;
   margin: 0;
@@ -493,12 +494,12 @@ body {
   border-right-width: 1px;
 }
 
-.commutes-modal .travel-modes input[type="radio"]:checked + label {
+.commutes-modal .travel-modes input[type="radio"]:checked+label {
   background: #e8f0fe;
   fill: #1967d2;
 }
 
-.commutes-modal .travel-modes input[type="radio"]:focus-visible + label {
+.commutes-modal .travel-modes input[type="radio"]:focus-visible+label {
   outline: 2px solid Highlight;
   outline: 2px solid -webkit-focus-ring-color;
   outline-offset: -2px;
@@ -537,24 +538,46 @@ body {
   display: none;
 }
 
+/* Enhanced rail line selector */
 .rail-line-selector {
   background-color: #fff;
-  padding: 10px;
+  padding: 12px;
   margin: 10px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   position: absolute;
   top: 50px;
   left: 10px;
   z-index: 5;
+  min-width: 220px;
+}
+
+.rail-line-selector label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
 }
 
 .rail-line-selector select {
-  padding: 8px;
+  padding: 8px 12px;
   font-size: 14px;
-  border: 1px solid #ccc;
+  border: 2px solid #ddd;
   border-radius: 4px;
   min-width: 200px;
+  background-color: #fff;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.rail-line-selector select:focus {
+  outline: none;
+  border-color: #4285f4;
+  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+}
+
+.rail-line-selector select:hover {
+  border-color: #999;
 }
 
 .station-marker {
@@ -566,16 +589,14 @@ body {
   max-width: 200px;
 }
 
+/* Enhanced line legend */
 .line-legend {
   position: absolute;
   bottom: 30px;
   left: 10px;
-  background-color: white;
-  padding: 10px;
-  border-radius: 4px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 5;
   display: none;
+  max-width: 250px;
 }
 
 .line-legend.visible {
@@ -591,21 +612,26 @@ body {
   border-radius: 50%;
 }
 
+/* Enhanced distance toggle */
 .distance-toggle {
-  margin-left: 10px;
-  display: inline-block;
+  margin-top: 10px;
 }
 
 .toggle-button {
   position: relative;
-  width: 80px;
-  height: 30px;
+  width: 90px;
+  height: 32px;
   background-color: #f0f0f0;
   border: 1px solid #ccc;
-  border-radius: 15px;
+  border-radius: 16px;
   cursor: pointer;
   overflow: hidden;
   padding: 0;
+  transition: all 0.3s ease;
+}
+
+.toggle-button:hover {
+  background-color: #e8e8e8;
 }
 
 .toggle-button .unit {
@@ -615,36 +641,61 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 12px;
+  font-size: 11px;
+  font-weight: 500;
   transition: all 0.3s ease;
+  z-index: 1;
 }
 
 .toggle-button .unit:first-child {
   left: 0;
   background-color: #4285f4;
   color: white;
+  border-radius: 15px;
 }
 
 .toggle-button .unit:last-child {
   right: 0;
-  background-color: #f0f0f0;
+  background-color: transparent;
   color: #333;
 }
 
 .toggle-button.metric .unit:first-child {
-  left: -50%;
-}
-
-.toggle-button.metric .unit:last-child {
-  right: -50%;
-}
-
-.toggle-button.metric .unit:first-child {
-  background-color: #f0f0f0;
+  left: 50%;
+  background-color: transparent;
   color: #333;
 }
 
 .toggle-button.metric .unit:last-child {
+  right: 50%;
   background-color: #4285f4;
   color: white;
+  border-radius: 15px;
+}
+
+/* Enhanced station info windows */
+.gm-ui-hover-effect {
+  opacity: 0.6;
+}
+
+.gm-ui-hover-effect:hover {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .rail-line-selector {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 10px;
+    width: calc(100% - 20px);
+  }
+
+  .line-legend {
+    bottom: 100px;
+    left: 10px;
+    right: 10px;
+    max-width: none;
+  }
 }
