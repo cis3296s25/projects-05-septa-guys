@@ -406,8 +406,8 @@
 
     function initRailLineSelector() {
       let lineMarkers = [];
-      let transitLayer = null; // Keep track of transit layer
-      let lineLegend = null; // Keep track of legend
+      let transitLayer = null;
+      let lineLegend = null;
       const railLineSelect = document.getElementById("rail-line-select");
 
       // Create legend element
@@ -438,7 +438,7 @@
           fetch(`/api/lines/${selectedLineId}/stations`)
             .then((response) => response.json())
             .then((data) => {
-              displayEnhancedRailLine(data.stations, selectedLineId);
+              displayTransitLayerOnly(data.stations, selectedLineId);
             })
             .catch((error) =>
               console.error("Error loading stations:", error)
@@ -447,7 +447,6 @@
       });
 
       function createLineLegend() {
-        // Create legend container if it doesn't exist
         lineLegend = document.querySelector('.line-legend');
         if (!lineLegend) {
           lineLegend = document.createElement("div");
@@ -473,34 +472,56 @@
         }
       }
 
-      function displayEnhancedRailLine(stations, lineId) {
-        // Get line color and info
+      function displayTransitLayerOnly(stations, lineId) {
+        // Get line info
         const lineColor = getLineColor(lineId);
         const lineName = getLineName(lineId);
 
-        // Show transit layer for accurate routes
+        // ONLY show Google's transit layer - no custom polylines
         transitLayer = new google.maps.TransitLayer();
         transitLayer.setMap(commutesMap);
 
         // Update and show legend
         updateLineLegend(lineName, lineColor, stations.length);
 
-        // Create enhanced station markers
+        // Create station markers ONLY (no connecting lines)
         stations.forEach((station, index) => {
+          const isTerminal = index === 0 || index === stations.length - 1;
+
           const marker = new google.maps.Marker({
             position: { lat: station.lat, lng: station.lng },
             map: commutesMap,
             title: station.name,
-            icon: createStationIcon(lineColor, index === 0 || index === stations.length - 1),
-            zIndex: 100 // Ensure markers appear above transit lines
+            icon: {
+              path: google.maps.SymbolPath.CIRCLE,
+              scale: isTerminal ? 10 : 8,
+              fillColor: "#FFFFFF",
+              fillOpacity: 1,
+              strokeColor: lineColor,
+              strokeWeight: isTerminal ? 4 : 3,
+              strokeOpacity: 1
+            },
+            zIndex: 100 // Ensure markers appear above everything
           });
 
-          // Create info window for each station
+          // Create info window
           const infoWindow = new google.maps.InfoWindow({
-            content: createStationInfoContent(station, lineName, lineId)
+            content: `
+          <div style="padding: 8px; min-width: 200px;">
+            <h3 style="margin: 0 0 8px 0; color: ${lineColor};">
+              ${station.name}
+            </h3>
+            <p style="margin: 4px 0; color: #666;">
+              <strong>${lineName}</strong>
+            </p>
+            <p style="margin: 4px 0; color: #666; font-size: 12px;">
+              SEPTA Regional Rail Station
+            </p>
+            ${isTerminal ? '<p style="margin: 4px 0; color: #e74c3c; font-size: 11px; font-weight: bold;">Terminal Station</p>' : ''}
+          </div>
+        `
           });
 
-          // Add click listener
           marker.addListener("click", () => {
             // Close any open info windows
             lineMarkers.forEach(m => {
@@ -514,42 +535,13 @@
           lineMarkers.push(marker);
         });
 
-        // Fit map to show all stations with some padding
+        // Fit map to show all stations with padding
         const bounds = new google.maps.LatLngBounds();
         stations.forEach((station) => {
           bounds.extend({ lat: station.lat, lng: station.lng });
         });
 
-        // Add some padding around the bounds
         commutesMap.fitBounds(bounds, { padding: 50 });
-      }
-
-      function createStationIcon(lineColor, isTerminal) {
-        return {
-          path: google.maps.SymbolPath.CIRCLE,
-          scale: isTerminal ? 10 : 8, // Make terminal stations slightly larger
-          fillColor: "#FFFFFF",
-          fillOpacity: 1,
-          strokeColor: lineColor,
-          strokeWeight: isTerminal ? 4 : 3,
-          strokeOpacity: 1
-        };
-      }
-
-      function createStationInfoContent(station, lineName, lineId) {
-        return `
-      <div style="padding: 8px; min-width: 200px;">
-        <h3 style="margin: 0 0 8px 0; color: ${getLineColor(lineId)};">
-          ${station.name}
-        </h3>
-        <p style="margin: 4px 0; color: #666;">
-          <strong>${lineName}</strong>
-        </p>
-        <p style="margin: 4px 0; color: #666; font-size: 12px;">
-          SEPTA Regional Rail Station
-        </p>
-      </div>
-    `;
       }
 
       function updateLineLegend(lineName, lineColor, stationCount) {
@@ -560,10 +552,10 @@
           <strong style="color: #333;">${lineName}</strong>
         </div>
         <div style="font-size: 12px; color: #666;">
-          ${stationCount} stations • Transit routes shown
+          ${stationCount} stations
         </div>
         <div style="font-size: 11px; color: #999; margin-top: 4px;">
-          Powered by Google Transit
+          Routes shown by Google Transit
         </div>
       </div>
     `;
@@ -571,7 +563,6 @@
       }
 
       function getLineColor(lineId) {
-        // Your existing line colors
         const lineColors = {
           AIR: "#4F94CD", // Airport Line (Blue)
           CHE: "#CD5C5C", // Chestnut Hill East (Red)
