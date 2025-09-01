@@ -20,7 +20,48 @@
   <title>SEPTA Commute Planner - Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style></style>
+  <style>
+    /* Enhanced legend styles */
+    .line-legend {
+      position: absolute;
+      bottom: 30px;
+      left: 10px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 5;
+      display: none;
+      min-width: 200px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .line-legend.visible {
+      display: block;
+    }
+
+    .line-legend .line-color-indicator {
+      display: inline-block;
+      width: 20px;
+      height: 4px;
+      margin-right: 10px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    .line-legend div {
+      margin-bottom: 5px;
+    }
+
+    .line-legend div:last-child {
+      margin-bottom: 0;
+    }
+
+    .line-legend small {
+      color: #666;
+      font-size: 12px;
+    }
+  </style>
   <link href="css/style.css" type="text/css" rel="stylesheet" />
 </head>
 
@@ -36,12 +77,6 @@
     <select id="rail-line-select">
       <option value="">Select a line...</option>
     </select>
-    <div class="distance-toggle">
-      <button id="distance-toggle" class="toggle-button">
-        <span class="unit">Imperial</span>
-        <span class="unit">Metric</span>
-      </button>
-    </div>
   </div>
 
   <!-- Defined commutes SVGs -->
@@ -398,132 +433,14 @@
       });
 
       setTimeout(() => {
-        if (commutesMap) {
-          initRailLineSelector();
+        if (window.commutesMap) {
+          console.log('Initializing enhanced rail line display...');
+          RailLineDisplay.init(window.commutesMap);
+        } else {
+          console.error('Map not available for rail line initialization');
         }
-      }, 1000);
+      }, 1500);
     };
-
-    function initRailLineSelector() {
-      let lineMarkers = [];
-      let linePolyline = null;
-      const railLineSelect = document.getElementById("rail-line-select");
-
-      // Fetch all rail lines and populate the dropdown
-      fetch("/api/lines")
-        .then((response) => response.json())
-        .then((lines) => {
-          lines.forEach((line) => {
-            const option = document.createElement("option");
-            option.value = line.id;
-            option.textContent = line.name;
-            railLineSelect.appendChild(option);
-          });
-        })
-        .catch((error) => console.error("Error loading rail lines:", error));
-
-      // Handle rail line selection
-      railLineSelect.addEventListener("change", function () {
-        const selectedLineId = this.value;
-
-        // Clear previous markers and polyline
-        clearRailLineFromMap();
-
-        if (selectedLineId) {
-          // Fetch stations for the selected line
-          fetch(`/api/lines/${selectedLineId}/stations`)
-            .then((response) => response.json())
-            .then((data) => {
-              displayRailLine(data.stations, data.route, selectedLineId);
-            })
-            .catch((error) =>
-              console.error("Error loading stations:", error)
-            );
-        }
-      });
-
-      function clearRailLineFromMap() {
-        // Clear station markers
-        lineMarkers.forEach((marker) => marker.setMap(null));
-        lineMarkers = [];
-
-        // Clear route polyline
-        if (linePolyline) {
-          linePolyline.setMap(null);
-          linePolyline = null;
-        }
-      }
-
-      function displayRailLine(stations, route, lineId) {
-        // Get line color based on lineId
-        const lineColor = getLineColor(lineId);
-
-        // Create a polyline for the route
-        linePolyline = new google.maps.Polyline({
-          path: route,
-          geodesic: true,
-          strokeColor: lineColor,
-          strokeOpacity: 1.0,
-          strokeWeight: 5,
-          map: commutesMap,
-        });
-
-        // Create markers for each station
-        stations.forEach((station) => {
-          const marker = new google.maps.Marker({
-            position: { lat: station.lat, lng: station.lng },
-            map: commutesMap,
-            title: station.name,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: 7,
-              fillColor: "#FFFFFF",
-              fillOpacity: 1,
-              strokeColor: lineColor,
-              strokeWeight: 3,
-            },
-            className: "station-marker",
-          });
-
-          // Add info window for station
-          const infoWindow = new google.maps.InfoWindow({
-            content: `<div class="station-info-window"><h3>${station.name}</h3><p>SEPTA Regional Rail Station</p></div>`,
-          });
-
-          marker.addListener("click", () => {
-            infoWindow.open(commutesMap, marker);
-          });
-
-          lineMarkers.push(marker);
-        });
-
-        // Fit the map to show the entire line
-        const bounds = new google.maps.LatLngBounds();
-        route.forEach((coord) => bounds.extend(coord));
-        commutesMap.fitBounds(bounds);
-      }
-
-      function getLineColor(lineId) {
-        // Standard SEPTA line colors
-        const lineColors = {
-          AIR: "#4F94CD", // Airport Line (Blue)
-          CHE: "#CD5C5C", // Chestnut Hill East (Red)
-          CHW: "#8B008B", // Chestnut Hill West (Purple)
-          CYN: "#FF8C00", // Cynwyd Line (Orange)
-          FOX: "#228B22", // Fox Chase Line (Green)
-          LAN: "#FF6347", // Lansdale/Doylestown Line (Red-Orange)
-          MED: "#4169E1", // Media/Elwyn Line (Blue)
-          NOR: "#FF4500", // Manayunk/Norristown Line (Orange-Red)
-          PAO: "#008B8B", // Paoli/Thorndale Line (Teal)
-          TRE: "#00CED1", // Trenton Line (Turquoise)
-          WAR: "#FF1493", // Warminster Line (Pink)
-          WIL: "#9932CC", // Wilmington/Newark Line (Purple)
-          WTR: "#FFD700", // West Trenton Line (Yellow)
-        };
-
-        return lineColors[lineId] || "#888888"; // Default gray if line not found
-      }
-    }
 
     /**
      * Defines instance of Commutes widget to be instantiated when Map library
