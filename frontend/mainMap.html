@@ -20,7 +20,48 @@
   <title>SEPTA Commute Planner - Map</title>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <style></style>
+  <style>
+    /* Enhanced legend styles */
+    .line-legend {
+      position: absolute;
+      bottom: 30px;
+      left: 10px;
+      background-color: white;
+      padding: 15px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      z-index: 5;
+      display: none;
+      min-width: 200px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .line-legend.visible {
+      display: block;
+    }
+
+    .line-legend .line-color-indicator {
+      display: inline-block;
+      width: 20px;
+      height: 4px;
+      margin-right: 10px;
+      vertical-align: middle;
+      border-radius: 2px;
+    }
+
+    .line-legend div {
+      margin-bottom: 5px;
+    }
+
+    .line-legend div:last-child {
+      margin-bottom: 0;
+    }
+
+    .line-legend small {
+      color: #666;
+      font-size: 12px;
+    }
+  </style>
   <link href="css/style.css" type="text/css" rel="stylesheet" />
 </head>
 
@@ -398,208 +439,14 @@
       });
 
       setTimeout(() => {
-        if (commutesMap) {
-          initRailLineSelector();
+        if (window.commutesMap) {
+          console.log('Initializing enhanced rail line display...');
+          RailLineDisplay.init(window.commutesMap);
+        } else {
+          console.error('Map not available for rail line initialization');
         }
-      }, 1000);
+      }, 1500);
     };
-
-    function initRailLineSelector() {
-      let lineMarkers = [];
-      let transitLayer = null;
-      let lineLegend = null;
-      const railLineSelect = document.getElementById("rail-line-select");
-
-      // Create legend element
-      createLineLegend();
-
-      // Fetch all rail lines and populate the dropdown
-      fetch("/api/lines")
-        .then((response) => response.json())
-        .then((lines) => {
-          lines.forEach((line) => {
-            const option = document.createElement("option");
-            option.value = line.id;
-            option.textContent = line.name;
-            railLineSelect.appendChild(option);
-          });
-        })
-        .catch((error) => console.error("Error loading rail lines:", error));
-
-      // Handle rail line selection
-      railLineSelect.addEventListener("change", function () {
-        const selectedLineId = this.value;
-
-        // Clear previous display
-        clearRailLineFromMap();
-
-        if (selectedLineId) {
-          // Fetch stations for the selected line
-          fetch(`/api/lines/${selectedLineId}/stations`)
-            .then((response) => response.json())
-            .then((data) => {
-              displayTransitLayerOnly(data.stations, selectedLineId);
-            })
-            .catch((error) =>
-              console.error("Error loading stations:", error)
-            );
-        }
-      });
-
-      function createLineLegend() {
-        lineLegend = document.querySelector('.line-legend');
-        if (!lineLegend) {
-          lineLegend = document.createElement("div");
-          lineLegend.className = "line-legend";
-          document.querySelector(".commutes-map").appendChild(lineLegend);
-        }
-      }
-
-      function clearRailLineFromMap() {
-        // Clear station markers
-        lineMarkers.forEach((marker) => marker.setMap(null));
-        lineMarkers = [];
-
-        // Clear transit layer
-        if (transitLayer) {
-          transitLayer.setMap(null);
-          transitLayer = null;
-        }
-
-        // Hide legend
-        if (lineLegend) {
-          lineLegend.style.display = 'none';
-        }
-      }
-
-      function displayTransitLayerOnly(stations, lineId) {
-        // Get line info
-        const lineColor = getLineColor(lineId);
-        const lineName = getLineName(lineId);
-
-        // ONLY show Google's transit layer - no custom polylines
-        transitLayer = new google.maps.TransitLayer();
-        transitLayer.setMap(commutesMap);
-
-        // Update and show legend
-        updateLineLegend(lineName, lineColor, stations.length);
-
-        // Create station markers ONLY (no connecting lines)
-        stations.forEach((station, index) => {
-          const isTerminal = index === 0 || index === stations.length - 1;
-
-          const marker = new google.maps.Marker({
-            position: { lat: station.lat, lng: station.lng },
-            map: commutesMap,
-            title: station.name,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              scale: isTerminal ? 10 : 8,
-              fillColor: "#FFFFFF",
-              fillOpacity: 1,
-              strokeColor: lineColor,
-              strokeWeight: isTerminal ? 4 : 3,
-              strokeOpacity: 1
-            },
-            zIndex: 100 // Ensure markers appear above everything
-          });
-
-          // Create info window
-          const infoWindow = new google.maps.InfoWindow({
-            content: `
-          <div style="padding: 8px; min-width: 200px;">
-            <h3 style="margin: 0 0 8px 0; color: ${lineColor};">
-              ${station.name}
-            </h3>
-            <p style="margin: 4px 0; color: #666;">
-              <strong>${lineName}</strong>
-            </p>
-            <p style="margin: 4px 0; color: #666; font-size: 12px;">
-              SEPTA Regional Rail Station
-            </p>
-            ${isTerminal ? '<p style="margin: 4px 0; color: #e74c3c; font-size: 11px; font-weight: bold;">Terminal Station</p>' : ''}
-          </div>
-        `
-          });
-
-          marker.addListener("click", () => {
-            // Close any open info windows
-            lineMarkers.forEach(m => {
-              if (m.infoWindow) m.infoWindow.close();
-            });
-            infoWindow.open(commutesMap, marker);
-          });
-
-          // Store info window reference
-          marker.infoWindow = infoWindow;
-          lineMarkers.push(marker);
-        });
-
-        // Fit map to show all stations with padding
-        const bounds = new google.maps.LatLngBounds();
-        stations.forEach((station) => {
-          bounds.extend({ lat: station.lat, lng: station.lng });
-        });
-
-        commutesMap.fitBounds(bounds, { padding: 50 });
-      }
-
-      function updateLineLegend(lineName, lineColor, stationCount) {
-        lineLegend.innerHTML = `
-      <div style="padding: 12px; background: white; border-radius: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-        <div style="display: flex; align-items: center; margin-bottom: 8px;">
-          <div style="width: 20px; height: 4px; background-color: ${lineColor}; margin-right: 8px; border-radius: 2px;"></div>
-          <strong style="color: #333;">${lineName}</strong>
-        </div>
-        <div style="font-size: 12px; color: #666;">
-          ${stationCount} stations
-        </div>
-        <div style="font-size: 11px; color: #999; margin-top: 4px;">
-          Routes shown by Google Transit
-        </div>
-      </div>
-    `;
-        lineLegend.style.display = 'block';
-      }
-
-      function getLineColor(lineId) {
-        const lineColors = {
-          AIR: "#4F94CD", // Airport Line (Blue)
-          CHE: "#CD5C5C", // Chestnut Hill East (Red)
-          CHW: "#8B008B", // Chestnut Hill West (Purple)
-          CYN: "#FF8C00", // Cynwyd Line (Orange)
-          FOX: "#228B22", // Fox Chase Line (Green)
-          LAN: "#FF6347", // Lansdale/Doylestown Line (Red-Orange)
-          MED: "#4169E1", // Media/Elwyn Line (Blue)
-          NOR: "#FF4500", // Manayunk/Norristown Line (Orange-Red)
-          PAO: "#008B8B", // Paoli/Thorndale Line (Teal)
-          TRE: "#00CED1", // Trenton Line (Turquoise)
-          WAR: "#FF1493", // Warminster Line (Pink)
-          WIL: "#9932CC", // Wilmington/Newark Line (Purple)
-          WTR: "#FFD700", // West Trenton Line (Yellow)
-        };
-        return lineColors[lineId] || "#888888";
-      }
-
-      function getLineName(lineId) {
-        const lineNames = {
-          AIR: "Airport Line",
-          CHE: "Chestnut Hill East Line",
-          CHW: "Chestnut Hill West Line",
-          CYN: "Cynwyd Line",
-          FOX: "Fox Chase Line",
-          LAN: "Lansdale/Doylestown Line",
-          MED: "Media/Elwyn Line",
-          NOR: "Manayunk/Norristown Line",
-          PAO: "Paoli/Thorndale Line",
-          TRE: "Trenton Line",
-          WAR: "Warminster Line",
-          WIL: "Wilmington/Newark Line",
-          WTR: "West Trenton Line",
-        };
-        return lineNames[lineId] || "Unknown Line";
-      }
-    }
 
     /**
      * Defines instance of Commutes widget to be instantiated when Map library
